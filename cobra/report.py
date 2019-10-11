@@ -71,11 +71,12 @@ class Report(object):
             return False
         p = subprocess.Popen(self.param, stdout=subprocess.PIPE)
         result, err = p.communicate()
-        if 'Critical' in result:
-            logger.critical('[Capture] ' + result)
+        print(type(result))
+        if 'Critical'.encode() in result:
+            logger.critical('[Capture] ' + result.decode())
             logger.critical('[Capture] Capture exception')
             return False
-        lines = result.split('\n')
+        lines = result.decode().split('\n')
         for l in lines:
             if 'reports' in l:
                 capture = l.split(':')[1].strip()

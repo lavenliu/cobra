@@ -47,6 +47,7 @@ except ImportError:
 
 q = queue.Queue()
 app = Flask(__name__, static_folder='templates/asset')
+print(__name__)
 running_host = '0.0.0.0'
 running_port = 5000
 
@@ -770,7 +771,7 @@ def sorted_dict(adict):
     return sorted(adict)
 
 
-def start(host, port, debug):
+def start(host, port=5000, debug=True):
     logger.info('Start {host}:{port}'.format(host=host, port=port))
     api = Blueprint("api", __name__)
     resource = Api(api)
@@ -795,10 +796,11 @@ def start(host, port, debug):
         i.start()
 
     try:
-        global running_port, running_host
-        running_host = host if host != '0.0.0.0' else '127.0.0.1'
-        running_port = port
-        app.run(debug=debug, host=host, port=int(port), threaded=True, processes=1)
+        # global running_port, running_host
+        # running_host = host if host != '0.0.0.0' else '127.0.0.1'
+        # running_port = port
+        app.run(debug=debug, host=host, port=port, threaded=True, processes=1)
+        # app.run(debug=debug, host=host, port=int(port), threaded=True, processes=1)
     except socket.error as v:
         if v.errno == errno.EACCES:
             logger.critical('[{err}] must root permission for start API Server!'.format(err=v.strerror))
@@ -807,3 +809,17 @@ def start(host, port, debug):
             logger.critical('{msg}'.format(msg=v.strerror))
 
     logger.info('API Server start success')
+
+api = Blueprint("api", __name__)
+resource = Api(api)
+
+resource.add_resource(AddJob, '/api/add')
+resource.add_resource(JobStatus, '/api/status')
+resource.add_resource(FileUpload, '/api/upload')
+resource.add_resource(ResultData, '/api/list')
+resource.add_resource(ResultDetail, '/api/detail')
+resource.add_resource(Search, '/api/search')
+resource.add_resource(GetMemeber, '/api/members')
+
+app.register_blueprint(api)
+
